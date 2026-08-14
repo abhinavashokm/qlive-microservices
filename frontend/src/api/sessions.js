@@ -29,3 +29,13 @@ export const joinSession = async (code, token) => {
   if (!res.ok) throw new Error('Failed to join session');
   return res.json();
 };
+
+export const getMySessions = async (token) => {
+  const res = await fetch(`${SESSION_API_BASE}/my/`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+  if (!res.ok) throw new Error('Failed to fetch sessions');
+  return res.json();
+};

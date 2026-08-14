@@ -11,7 +11,7 @@ class SessionListCreateView(APIView):
 
     def get(self, request):
         if request.path.endswith('/my/'):
-            sessions = Session.objects.filter(host=request.user.id)
+            sessions = Session.objects.filter(host=request.user.id).order_by('-created_at')
             serializer = SessionSerializer(sessions, many=True)
             return Response(serializer.data)
         return Response(status=status.HTTP_404_NOT_FOUND)
