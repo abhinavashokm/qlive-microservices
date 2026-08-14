@@ -1,0 +1,39 @@
+# --- Python / Django (all services) ---
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+db.sqlite3
+*.log
+staticfiles/
+media/
+
+# Django secrets/config
+.env
+*/.env
+!.env.example
+
+# --- Node / React / Vite (frontend) ---
+node_modules/
+frontend/dist/
+frontend/.vite/
+npm-debug.log*
+
+# --- Docker ---
+*.pid
+
+# --- Elasticsearch / RabbitMQ data volumes (if bind-mounted) ---
+esdata/
+rabbitmq-data/
+
+# --- Editor / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- Celery ---
+celerybeat-schedule
+celerybeat.pid
