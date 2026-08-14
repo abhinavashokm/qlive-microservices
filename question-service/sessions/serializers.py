@@ -1,7 +1,12 @@
 from rest_framework import serializers
 from .models import Session
 
-class SessionSerializer(serializers.ModelSerializer):
+class SessionCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Session
+        fields = ['title']
+
+class SessionListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Session
         fields = ['id', 'title', 'host', 'invite_code', 'is_active', 'created_at']

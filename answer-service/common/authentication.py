@@ -3,6 +3,11 @@ from django.conf import settings
 from rest_framework import authentication
 from rest_framework import exceptions
 
+# NOTE: This authentication class is duplicated across services (auth, question, answer)
+# intentionally to avoid strict coupling between microservices. In a real-world scenario, 
+# you might use a shared internal library or package, but copying this small, standalone 
+# module keeps the services independent and deployable on their own.
+
 class DummyUser:
     def __init__(self, user_id):
         self.id = user_id

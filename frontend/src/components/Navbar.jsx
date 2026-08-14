@@ -1,33 +1,32 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { ROUTES } from '../constants';
+import Button from './ui/Button';
 
 export default function Navbar({ user, onLogout }) {
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex-shrink-0 flex items-center">
-            <Link to="/home" className="text-xl font-bold text-indigo-600 tracking-tight">
-              QLive
-            </Link>
-          </div>
+    <nav className="sticky top-0 z-50 glass-panel border-b-0 border-x-0 border-t-0 border-white/5">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16 items-center">
+          <Link to="/" className="flex items-center gap-2 group">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-cyan-500 flex items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.5)] group-hover:scale-110 transition-transform">
+              <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <span className="text-xl font-bold tracking-tight text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-violet-400 group-hover:to-cyan-400 transition-all">QLive</span>
+          </Link>
           
-          <div className="flex items-center space-x-4">
-            {user && (
-              <span className="hidden sm:block text-sm font-medium text-gray-700">
-                {user.full_name}
+          {user && (
+            <div className="flex items-center gap-4">
+              <span className="text-sm font-medium text-zinc-400 hidden sm:block">
+                Hi, <span className="text-zinc-100">{user.full_name || user.username}</span>
               </span>
-            )}
-            
-            {onLogout && (
-              <button 
-                onClick={onLogout}
-                className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-xl text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors shadow-sm"
-              >
+              <Button variant="ghost" onClick={onLogout} className="px-3 py-1.5 text-sm h-9">
                 Log Out
-              </button>
-            )}
-          </div>
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </nav>

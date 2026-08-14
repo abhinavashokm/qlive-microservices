@@ -1,9 +1,10 @@
 import random
 import string
 from django.db import models
+from .constants import INVITE_CODE_LENGTH
 
 def generate_invite_code():
-    return ''.join(random.choices(string.ascii_letters + string.digits, k=6))
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=INVITE_CODE_LENGTH))
 
 class Session(models.Model):
     title = models.CharField(max_length=255)

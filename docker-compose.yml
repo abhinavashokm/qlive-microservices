@@ -1,0 +1,92 @@
+version: '3.8'
+
+services:
+  # -------------------------------------
+  # AUTH SERVICE
+  # -------------------------------------
+  auth-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: auth_db
+    ports:
+      - "5432:5432"
+
+  auth-service:
+    build: 
+      context: ./auth-service
+    ports:
+      - "8000:8000"
+    depends_on:
+      - auth-db
+    environment:
+      - DB_HOST=auth-db
+
+  # -------------------------------------
+  # QUESTION SERVICE
+  # -------------------------------------
+  question-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: question_db
+    ports:
+      - "5433:5432"
+
+  question-service:
+    build: 
+      context: ./question-service
+    ports:
+      - "8001:8000"
+    depends_on:
+      - question-db
+    environment:
+      - DB_HOST=question-db
+
+  # -------------------------------------
+  # ANSWER SERVICE
+  # -------------------------------------
+  answer-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: answer_db
+    ports:
+      - "5434:5432"
+
+  answer-service:
+    build: 
+      context: ./answer-service
+    ports:
+      - "8002:8000"
+    depends_on:
+      - answer-db
+    environment:
+      - DB_HOST=answer-db
+
+  # -------------------------------------
+  # NOTIFICATION SERVICE
+  # -------------------------------------
+  notification-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: notification_db
+    ports:
+      - "5435:5432"
+
+  notification-service:
+    build: 
+      context: ./notification-service
+    ports:
+      - "8003:8000"
+    depends_on:
+      - notification-db
+    environment:
+      - DB_HOST=notification-db
+
+  # TODO: Redis, RabbitMQ, and Elasticsearch containers - to be implemented by hand

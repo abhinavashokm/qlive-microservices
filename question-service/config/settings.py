@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'sessions',
+    'questions',
 ]
 
 MIDDLEWARE = [
@@ -137,6 +138,7 @@ AUTH_SERVICE_SECRET_KEY = 'django-insecure-p-mz-4xuaffm-$$(4@h6y==py^5w3)_4ygiok
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'sessions.auth.JWTAuthentication',
-    )
+        'common.authentication.JWTAuthentication',
+    ),
+    'EXCEPTION_HANDLER': 'common.exceptions.custom_exception_handler',
 }
