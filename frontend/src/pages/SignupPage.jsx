@@ -38,14 +38,14 @@ export default function SignupPage() {
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2 group">
             <div className="w-6 h-6 rounded bg-gradient-to-br from-violet-500 to-cyan-500 flex items-center justify-center">
-              <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-4 h-4 text-zinc-950" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
-            <span className="text-xl font-bold tracking-tight text-white">QLive</span>
+            <span className="text-xl font-bold tracking-tight text-zinc-950">QLive</span>
           </Link>
-          <h2 className="text-3xl font-bold text-white mt-6">Create an account</h2>
-          <p className="text-zinc-400 mt-2 text-sm">Join to host your own sessions</p>
+          <h2 className="text-3xl font-bold text-zinc-950 mt-6">Create an account</h2>
+          <p className="text-zinc-600 mt-2 text-sm">Join to host your own sessions</p>
         </div>
         
         {error && (
@@ -59,8 +59,8 @@ export default function SignupPage() {
           <Input label="Username" name="username" type="text" required value={formData.username} onChange={handleChange} disabled={isLoading} />
           <Input label="Password" name="password" type="password" required value={formData.password} onChange={handleChange} disabled={isLoading} />
           
-          <div className="mt-8">
-            <Button type="submit" variant="gradient" isLoading={isLoading} className="w-full text-base">
+          <div className="mt-8 flex justify-end">
+            <Button type="submit" variant="gradient" isLoading={isLoading} className="px-8 text-base">
               Sign Up
             </Button>
           </div>

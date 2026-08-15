@@ -4,11 +4,11 @@ export default function Button({ children, variant = 'primary', isLoading, class
   const baseClasses = "font-medium py-3 px-5 rounded-xl transition-all duration-300 focus:outline-none focus:ring-4 flex justify-center items-center w-full sm:w-auto relative overflow-hidden group";
   
   const variants = {
-    primary: "bg-zinc-100 hover:bg-white text-zinc-900 shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_25px_rgba(255,255,255,0.2)] focus:ring-white/30",
-    gradient: "bg-gradient-to-r from-violet-600 via-brand-500 to-cyan-500 hover:from-violet-500 hover:via-brand-400 hover:to-cyan-400 text-white shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] focus:ring-brand-500/40 border border-white/10",
-    secondary: "glass hover:bg-white/10 text-zinc-200 focus:ring-zinc-500/30",
+    primary: "bg-zinc-900 hover:bg-white text-zinc-100 shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_25px_rgba(255,255,255,0.2)] focus:ring-black/30",
+    gradient: "bg-gradient-to-r from-violet-600 via-brand-500 to-cyan-500 hover:from-violet-500 hover:via-brand-400 hover:to-cyan-400 text-white shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] focus:ring-brand-500/40 border border-black/10",
+    secondary: "glass hover:bg-black/10 text-zinc-800 focus:ring-zinc-500/30",
     destructive: "bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 hover:border-red-500/40 focus:ring-red-500/30",
-    ghost: "hover:bg-white/5 text-zinc-300 hover:text-white focus:ring-zinc-500/30"
+    ghost: "hover:bg-black/5 text-zinc-700 hover:text-zinc-950 focus:ring-zinc-500/30"
   };
 
   const disabledClasses = isLoading || props.disabled ? "opacity-50 cursor-not-allowed pointer-events-none" : "";
@@ -21,7 +21,7 @@ export default function Button({ children, variant = 'primary', isLoading, class
     >
       {/* Subtle shine effect on gradient buttons */}
       {variant === 'gradient' && (
-        <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-black/20 to-transparent pointer-events-none" />
       )}
       
       {isLoading ? (

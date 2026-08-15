@@ -39,14 +39,14 @@ export default function JoinSessionPage() {
         <div className="mb-10">
           <Link to="/" className="inline-flex items-center gap-2 group">
             <div className="w-6 h-6 rounded bg-gradient-to-br from-violet-500 to-cyan-500 flex items-center justify-center">
-              <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-4 h-4 text-zinc-950" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
-            <span className="text-xl font-bold tracking-tight text-white">QLive</span>
+            <span className="text-xl font-bold tracking-tight text-zinc-950">QLive</span>
           </Link>
-          <h2 className="text-3xl font-bold text-white mt-8">Join a Session</h2>
-          <p className="text-zinc-400 mt-2 text-sm">Enter the invite code to participate</p>
+          <h2 className="text-3xl font-bold text-zinc-950 mt-8">Join a Session</h2>
+          <p className="text-zinc-600 mt-2 text-sm">Enter the invite code to participate</p>
         </div>
         
         {error && (
@@ -61,13 +61,15 @@ export default function JoinSessionPage() {
             disabled={isLoading} placeholder="INVITE CODE" maxLength={10}
             className="text-center text-2xl font-mono tracking-[0.3em] uppercase py-5"
           />
-          <Button type="submit" variant="gradient" isLoading={isLoading} className="w-full text-lg py-4">
-            Enter Room
-          </Button>
+          <div className="flex justify-end">
+            <Button type="submit" variant="gradient" isLoading={isLoading} className="text-lg py-3 px-8">
+              Enter Room
+            </Button>
+          </div>
         </form>
         
         <div className="mt-8">
-          <button onClick={() => navigate(ROUTES.HOME)} className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">
+          <button onClick={() => navigate(ROUTES.HOME)} className="text-sm font-medium text-zinc-600 hover:text-zinc-950 transition-colors">
             &larr; Back to Dashboard
           </button>
         </div>
