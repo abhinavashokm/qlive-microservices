@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ROUTES } from '../constants';
 import { useQuestions } from '../hooks/useQuestions';
-import { answersApi } from '../api/answersApi';
 import Navbar from '../components/Navbar';
 import QuestionCard from '../components/QuestionCard';
 import AskQuestionForm from '../components/AskQuestionForm';
@@ -14,7 +13,6 @@ export default function SessionRoomPage() {
   const navigate = useNavigate();
   const { questions, setQuestions, fetchQuestions, askQuestion, markAnswered } = useQuestions(inviteCode);
   
-  const [answerInputs, setAnswerInputs] = useState({});
   const isHost = true; // TODO: Determine if host from context/auth
 
   useEffect(() => {
@@ -28,18 +26,6 @@ export default function SessionRoomPage() {
 
   const handleAskQuestion = async (text) => {
     await askQuestion(text);
-  };
-
-  const handleAnswerSubmit = async (questionId) => {
-    const text = answerInputs[questionId];
-    if (!text || !text.trim()) return;
-    
-    await answersApi.submit(questionId, text);
-    
-    setQuestions(questions.map(q => 
-      q.id === questionId ? { ...q, is_answered: true, answerText: text } : q
-    ));
-    setAnswerInputs({ ...answerInputs, [questionId]: '' });
   };
 
   const handleMarkDone = async (questionId) => {
@@ -85,9 +71,6 @@ export default function SessionRoomPage() {
                 key={q.id}
                 question={q}
                 isHost={isHost}
-                answerInput={answerInputs[q.id]}
-                onAnswerInputChange={(id, val) => setAnswerInputs(prev => ({...prev, [id]: val}))}
-                onSubmitAnswer={handleAnswerSubmit}
                 onMarkDone={handleMarkDone}
                 onUpvote={toggleUpvote}
               />

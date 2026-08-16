@@ -1,6 +1,14 @@
-version: '3.8'
-
 services:
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - auth-service
+      - question-service
+
   # -------------------------------------
   # AUTH SERVICE
   # -------------------------------------
@@ -22,6 +30,9 @@ services:
       - auth-db
     environment:
       - DB_HOST=auth-db
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
 
   # -------------------------------------
   # QUESTION SERVICE
@@ -44,28 +55,9 @@ services:
       - question-db
     environment:
       - DB_HOST=question-db
-
-  # -------------------------------------
-  # ANSWER SERVICE
-  # -------------------------------------
-  answer-db:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgrespassword
-      POSTGRES_DB: answer_db
-    ports:
-      - "5434:5432"
-
-  answer-service:
-    build: 
-      context: ./answer-service
-    ports:
-      - "8002:8000"
-    depends_on:
-      - answer-db
-    environment:
-      - DB_HOST=answer-db
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
 
   # -------------------------------------
   # NOTIFICATION SERVICE
@@ -88,5 +80,8 @@ services:
       - notification-db
     environment:
       - DB_HOST=notification-db
+    command: >
+      sh -c "python manage.py migrate &&
+             daphne -b 0.0.0.0 -p 8000 config.asgi:application"
 
   # TODO: Redis, RabbitMQ, and Elasticsearch containers - to be implemented by hand

@@ -1,3 +1,4 @@
+import requests
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from common.responses import success_response
@@ -15,9 +16,23 @@ class QuestionListCreateView(APIView):
     def post(self, request, invite_code):
         serializer = QuestionCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        question = services.create_question(invite_code=invite_code, text=serializer.validated_data['text'], author_id=request.user.id)
-        return success_response(data=QuestionListSerializer(question).data, status_code=201)
+        question = services.create_question(
+            invite_code=invite_code,
+            text=serializer.validated_data['text'],
+            author_id=request.user.id
+        )
+        question_data = QuestionListSerializer(question).data
 
+        try:
+            requests.post(
+                "http://localhost:8003/api/broadcast/question-created/",
+                json={"invite_code": invite_code, "question": question_data},
+                timeout=2
+            )
+        except requests.RequestException:
+            pass  # don't let a broadcast failure break question creation
+
+        return success_response(data=question_data, status_code=201)
 class QuestionMarkAnsweredView(APIView):
     permission_classes = [IsAuthenticated]
 
