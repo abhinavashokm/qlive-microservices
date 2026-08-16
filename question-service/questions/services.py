@@ -1,3 +1,4 @@
+import json
 from .models import Question, Vote
 from sessions.services import get_active_session_by_code
 from common.exceptions import ForbiddenError, NotFoundError
@@ -5,19 +6,33 @@ from .redis_client import redis_client
 from django.db import IntegrityError
 
 def list_questions(invite_code: str):
-    """Lists all questions for a given active session, ordered by created_at."""
+    cache_key = f"session:{invite_code}:questions"
+    cached = redis_client.get(cache_key)
+
+    if cached is not None:
+        return json.loads(cached)  # served entirely from Redis, no DB hit
+
+    # Cache miss — build it from Postgres
     session = get_active_session_by_code(invite_code)
-    # TODO: vote sorting — implemented separately by hand
     questions = list(Question.objects.filter(session=session).order_by('created_at'))
-    for q in questions:
-        redis_count = redis_client.get(f"question:{q.id}:votes")
-        if redis_count is not None:
-            q.vote_count = int(redis_count)
-    return questions
+
+    data = [
+        {"id": q.id, "text": q.text, "vote_count": q.vote_count, "is_answered": q.is_answered}
+        for q in questions
+    ]
+    data.sort(key=lambda q: q["vote_count"], reverse=True)
+
+    redis_client.set(cache_key, json.dumps(data), ex=60)  # cache for 60 seconds
+    return data
 
 def create_question(invite_code: str, text: str, author_id: int) -> Question:
     """Creates a new question within an active session."""
     session = get_active_session_by_code(invite_code)
+
+    # Invalidate cache so next list_questions hits the DB
+    cache_key = f"session:{invite_code}:questions"
+    redis_client.delete(cache_key)
+
     return Question.objects.create(session=session, text=text, author=author_id)
 
 def mark_question_answered(invite_code: str, question_id: int, requester_id: int):

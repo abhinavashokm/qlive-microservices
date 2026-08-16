@@ -8,3 +8,4 @@ python-dotenv==1.2.2
 redis==8.1.0
 sqlparse==0.6.0
 requests==2.32.3
+pika==1.4.4

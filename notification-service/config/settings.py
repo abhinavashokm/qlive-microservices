@@ -48,9 +48,14 @@ INSTALLED_APPS = [
 
 ASGI_APPLICATION = "config.asgi.application"
 
-# Temporary: in-memory layer, works for single-process local dev
-# You'll swap this for channels_redis once you build the Redis piece yourself
-CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [(os.environ.get("REDIS_HOST", "127.0.0.1"), 6379)],
+        },
+    }
+}
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",

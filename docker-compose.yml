@@ -15,6 +15,17 @@ services:
     ports:
       - "6379:6379"
 
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   # -------------------------------------
   # AUTH SERVICE
   # -------------------------------------
@@ -73,9 +84,12 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+      rabbitmq:
+        condition: service_healthy
     environment:
       - DB_HOST=question-db
       - REDIS_HOST=redis
+      - RABBITMQ_HOST=rabbitmq
     command: >
       sh -c "python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
@@ -105,10 +119,32 @@ services:
     depends_on:
       notification-db:
         condition: service_healthy
+      rabbitmq:
+        condition: service_started
+      redis:
+        condition: service_started
     environment:
       - DB_HOST=notification-db
+      - RABBITMQ_HOST=rabbitmq
+      - REDIS_HOST=redis
     command: >
       sh -c "python manage.py migrate &&
              daphne -b 0.0.0.0 -p 8000 config.asgi:application"
+
+  notification-listener:
+    build:
+      context: ./notification-service
+    command: python manage.py listen_rabbitmq
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      notification-db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      - DB_HOST=notification-db
+      - RABBITMQ_HOST=rabbitmq
+      - REDIS_HOST=redis
 
   # TODO: RabbitMQ and Elasticsearch containers - to be implemented by hand

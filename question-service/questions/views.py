@@ -4,6 +4,8 @@ from rest_framework.permissions import IsAuthenticated
 from common.responses import success_response
 from .serializers import QuestionCreateSerializer, QuestionListSerializer
 from . import services
+from .rabbitmq_client import publish_event
+
 
 class QuestionListCreateView(APIView):
     permission_classes = [IsAuthenticated]
@@ -44,15 +46,21 @@ class QuestionVoteView(APIView):
         question = services.vote_question(question_id=question_id, user_id=request.user.id)
         
         try:
-            requests.post(
-                "http://notification-service:8000/api/broadcast/vote-updated/",
-                json={
-                    "invite_code": question.session.invite_code,
-                    "question_id": question.id,
-                    "vote_count": question.vote_count
-                },
-                timeout=2
-            )
+            # requests.post(
+            #     "http://notification-service:8000/api/broadcast/vote-updated/",
+            #     json={
+            #         "invite_code": question.session.invite_code,
+            #         "question_id": question.id,
+            #         "vote_count": question.vote_count
+            #     },
+            #     timeout=2
+            # )
+            publish_event("vote_updated", {
+                "invite_code": question.session.invite_code,
+                "question_id": question.id,
+                "vote_count": question.vote_count
+            })
+            
         except requests.RequestException:
             pass
             
