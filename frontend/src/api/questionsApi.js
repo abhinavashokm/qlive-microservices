@@ -9,7 +9,9 @@ export const questionsApi = {
   
   list: (inviteCode) => apiClient(`${QUESTION_API_BASE_URL}/sessions/${inviteCode}/questions/`),
   
-  markAnswered: (inviteCode, questionId) => apiClient(`${QUESTION_API_BASE_URL}/sessions/${inviteCode}/questions/${questionId}/answered/`, {
-    method: 'PATCH'
+
+
+  vote: (questionId) => apiClient(`${QUESTION_API_BASE_URL}/questions/${questionId}/vote/`, {
+    method: 'POST'
   }),
 };

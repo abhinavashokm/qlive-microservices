@@ -18,4 +18,5 @@ from django.urls import path, include
 
 urlpatterns = [
     path('api/sessions/', include('sessions.urls')),
+    path('api/questions/', include('questions.urls')),
 ]

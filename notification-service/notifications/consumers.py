@@ -18,3 +18,11 @@ class SessionConsumer(AsyncWebsocketConsumer):
             "type": "question_created",
             "question": event["question"]
         }))
+
+
+    async def vote_updated(self, event):
+        await self.send(text_data=json.dumps({
+            "type": "vote_updated",
+            "question_id": event["question_id"],
+            "vote_count": event["vote_count"]
+        }))

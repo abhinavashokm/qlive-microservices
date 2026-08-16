@@ -14,3 +14,19 @@ class BroadcastQuestionCreated(APIView):
             {"type": "question_created", "question": question}  # "type" must match consumer method name
         )
         return Response({"status": "broadcasted"})
+
+
+
+
+class BroadcastVoteUpdated(APIView):
+    def post(self, request):
+        invite_code = request.data["invite_code"]
+        question_id = request.data["question_id"]
+        vote_count = request.data["vote_count"]
+
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f"session_{invite_code}",
+            {"type": "vote_updated", "question_id": question_id, "vote_count": vote_count}
+        )
+        return Response({"status": "broadcasted"})

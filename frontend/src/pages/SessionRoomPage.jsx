@@ -11,29 +11,42 @@ import Button from '../components/ui/Button';
 export default function SessionRoomPage() {
   const { inviteCode } = useParams();
   const navigate = useNavigate();
-  const { questions, setQuestions, fetchQuestions, askQuestion, markAnswered } = useQuestions(inviteCode);
+  const { questions, setQuestions, fetchQuestions, askQuestion, upvoteQuestion } = useQuestions(inviteCode);
   
   const isHost = true; // TODO: Determine if host from context/auth
 
   useEffect(() => {
     fetchQuestions();
-  }, [fetchQuestions]);
 
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(`${window.location.origin}/join/${inviteCode}`);
-    alert("Invite link copied!");
-  };
+    const wsUrl = `ws://localhost:8003/ws/session/${inviteCode}/`;
+    const ws = new WebSocket(wsUrl);
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === 'question_created') {
+        setQuestions(prev => {
+          if (prev.some(q => q.id === data.question.id)) return prev;
+          return [...prev, data.question];
+        });
+      } else if (data.type === 'vote_updated') {
+        setQuestions(prev => prev.map(q => q.id === data.question_id ? { ...q, vote_count: data.vote_count } : q));
+      }
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, [fetchQuestions, inviteCode, setQuestions]);
+
+
 
   const handleAskQuestion = async (text) => {
     await askQuestion(text);
   };
 
-  const handleMarkDone = async (questionId) => {
-    await markAnswered(questionId);
-  };
 
-  const toggleUpvote = (id) => {
-    // TODO: implement upvote API call
+  const toggleUpvote = async (id) => {
+    await upvoteQuestion(id);
   };
 
   return (
@@ -56,7 +69,7 @@ export default function SessionRoomPage() {
               </div>
             </div>
             <div className="flex space-x-3 w-full sm:w-auto">
-              <Button variant="ghost" onClick={handleCopyLink} className="flex-1 sm:flex-none text-sm">Copy Link</Button>
+
               <Button variant="secondary" onClick={() => navigate(ROUTES.HOME)} className="flex-1 sm:flex-none text-sm">Leave Room</Button>
             </div>
           </div>
@@ -71,7 +84,6 @@ export default function SessionRoomPage() {
                 key={q.id}
                 question={q}
                 isHost={isHost}
-                onMarkDone={handleMarkDone}
                 onUpvote={toggleUpvote}
               />
             ))}

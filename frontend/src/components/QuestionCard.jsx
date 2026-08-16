@@ -2,8 +2,8 @@ import React from 'react';
 import Badge from './ui/Badge';
 import Button from './ui/Button';
 
-export default function QuestionCard({ question, isHost, onMarkDone, onUpvote }) {
-  const hasUserVoted = false; // TODO: Wire this up later
+export default function QuestionCard({ question, isHost, onUpvote }) {
+  const hasUserVoted = question.has_voted || false;
 
   return (
     <div className={`glass-panel p-4 sm:p-6 rounded-3xl transition-all duration-300 hover:border-black/10 ${question.is_answered ? 'opacity-70 bg-zinc-100/30' : 'bg-zinc-100/50'}`}>
@@ -12,10 +12,11 @@ export default function QuestionCard({ question, isHost, onMarkDone, onUpvote })
         {/* Upvote Column */}
         <div className="flex flex-col items-center justify-start shrink-0 pt-1">
           <button 
-            onClick={() => onUpvote(question.id)}
+            onClick={() => !hasUserVoted && onUpvote(question.id)}
+            disabled={hasUserVoted}
             className={`flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 ${
               hasUserVoted 
-                ? 'bg-brand-500/20 text-brand-400 border border-brand-500/30 shadow-[0_0_15px_rgba(99,102,241,0.2)]' 
+                ? 'bg-brand-500/20 text-brand-400 border border-brand-500/30 shadow-[0_0_15px_rgba(99,102,241,0.2)] cursor-default' 
                 : 'bg-zinc-200/50 text-zinc-600 hover:bg-zinc-300 hover:text-zinc-950 border border-black/5'
             }`}
           >
@@ -24,7 +25,7 @@ export default function QuestionCard({ question, isHost, onMarkDone, onUpvote })
             </svg>
           </button>
           <span className={`font-bold mt-2 text-sm sm:text-base ${hasUserVoted ? 'text-brand-400' : 'text-zinc-500'}`}>
-            {question.votes || 0}
+            {question.vote_count || 0}
           </span>
         </div>
 
@@ -37,16 +38,7 @@ export default function QuestionCard({ question, isHost, onMarkDone, onUpvote })
             {question.is_answered && <Badge variant="success">Answered</Badge>}
           </div>
 
-          {/* Host Controls */}
-          {isHost && !question.is_answered && (
-            <div className="mt-6 pt-5 border-t border-black/5">
-              <div className="flex justify-end">
-                <Button onClick={() => onMarkDone(question.id)} className="px-6 py-2 text-sm !rounded-xl">
-                  Mark as Answered
-                </Button>
-              </div>
-            </div>
-          )}
+
         </div>
       </div>
     </div>

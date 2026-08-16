@@ -46,11 +46,7 @@ export default function HomePage() {
     }
   };
 
-  const copyToClipboard = (code) => {
-    const link = `${window.location.origin}/join/${code}`;
-    navigator.clipboard.writeText(link);
-    alert('Invite link copied to clipboard!');
-  };
+
 
   const handleJoin = async (e) => {
     e.preventDefault();
@@ -111,9 +107,7 @@ export default function HomePage() {
                   <p className="text-sm text-brand-300 font-medium mb-2 uppercase tracking-widest">Share this invite code</p>
                   <p className="text-4xl font-mono font-extrabold tracking-[0.2em] text-zinc-950 mb-6 drop-shadow-lg">{createdSession.invite_code}</p>
                   <div className="flex justify-end gap-3 mt-4">
-                    <Button variant="secondary" onClick={() => copyToClipboard(createdSession.invite_code)} className="text-sm py-2 px-6">
-                      Copy Link
-                    </Button>
+
                     <Button variant="gradient" onClick={() => navigate(ROUTES.SESSION(createdSession.invite_code))} className="text-sm py-2 px-6">
                       Enter Room
                     </Button>

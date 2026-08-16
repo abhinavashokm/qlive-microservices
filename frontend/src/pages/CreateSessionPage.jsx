@@ -19,12 +19,7 @@ export default function CreateSessionPage({ token }) {
     }
   };
 
-  const inviteLink = session ? `${window.location.origin}/join/${session.invite_code}` : '';
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(inviteLink);
-    alert('Copied to clipboard!');
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-8 flex justify-center items-center">
@@ -60,12 +55,7 @@ export default function CreateSessionPage({ token }) {
               <p className="text-sm mb-1">Invite Code:</p>
               <p className="text-2xl font-mono font-bold tracking-wider">{session.invite_code}</p>
             </div>
-            <button 
-              onClick={copyToClipboard}
-              className="w-full mb-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-2 px-4 rounded border transition"
-            >
-              Copy Invite Link
-            </button>
+
             <button 
               onClick={() => navigate(`/session/${session.invite_code}`)}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition"

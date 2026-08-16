@@ -8,6 +8,12 @@ services:
     depends_on:
       - auth-service
       - question-service
+      - notification-service
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
 
   # -------------------------------------
   # AUTH SERVICE
@@ -20,14 +26,20 @@ services:
       POSTGRES_DB: auth_db
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   auth-service:
-    build: 
+    build:
       context: ./auth-service
     ports:
       - "8000:8000"
     depends_on:
-      - auth-db
+      auth-db:
+        condition: service_healthy
     environment:
       - DB_HOST=auth-db
     command: >
@@ -45,16 +57,25 @@ services:
       POSTGRES_DB: question_db
     ports:
       - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   question-service:
-    build: 
+    build:
       context: ./question-service
     ports:
       - "8001:8000"
     depends_on:
-      - question-db
+      question-db:
+        condition: service_healthy
+      redis:
+        condition: service_started
     environment:
       - DB_HOST=question-db
+      - REDIS_HOST=redis
     command: >
       sh -c "python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
@@ -70,18 +91,24 @@ services:
       POSTGRES_DB: notification_db
     ports:
       - "5435:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   notification-service:
-    build: 
+    build:
       context: ./notification-service
     ports:
       - "8003:8000"
     depends_on:
-      - notification-db
+      notification-db:
+        condition: service_healthy
     environment:
       - DB_HOST=notification-db
     command: >
       sh -c "python manage.py migrate &&
              daphne -b 0.0.0.0 -p 8000 config.asgi:application"
 
-  # TODO: Redis, RabbitMQ, and Elasticsearch containers - to be implemented by hand
+  # TODO: RabbitMQ and Elasticsearch containers - to be implemented by hand

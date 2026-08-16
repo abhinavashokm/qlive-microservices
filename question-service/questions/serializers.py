@@ -12,5 +12,5 @@ class QuestionCreateSerializer(serializers.ModelSerializer):
 class QuestionListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
-        fields = ['id', 'session', 'author', 'text', 'is_answered', 'created_at']
-        read_only_fields = ['id', 'session', 'author', 'is_answered', 'created_at']
+        fields = ['id', 'session', 'author', 'text', 'is_answered', 'created_at', 'vote_count']
+        read_only_fields = ['id', 'session', 'author', 'is_answered', 'created_at', 'vote_count']

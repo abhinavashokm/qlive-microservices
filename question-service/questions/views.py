@@ -25,7 +25,7 @@ class QuestionListCreateView(APIView):
 
         try:
             requests.post(
-                "http://localhost:8003/api/broadcast/question-created/",
+                "http://notification-service:8000/api/broadcast/question-created/",
                 json={"invite_code": invite_code, "question": question_data},
                 timeout=2
             )
@@ -33,9 +33,27 @@ class QuestionListCreateView(APIView):
             pass  # don't let a broadcast failure break question creation
 
         return success_response(data=question_data, status_code=201)
-class QuestionMarkAnsweredView(APIView):
+
+
+
+
+class QuestionVoteView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def patch(self, request, invite_code, pk):
-        services.mark_question_answered(invite_code, pk, request.user.id)
-        return success_response(message='marked as answered')
+    def post(self, request, question_id):
+        question = services.vote_question(question_id=question_id, user_id=request.user.id)
+        
+        try:
+            requests.post(
+                "http://notification-service:8000/api/broadcast/vote-updated/",
+                json={
+                    "invite_code": question.session.invite_code,
+                    "question_id": question.id,
+                    "vote_count": question.vote_count
+                },
+                timeout=2
+            )
+        except requests.RequestException:
+            pass
+            
+        return success_response(data={"vote_count": question.vote_count})
