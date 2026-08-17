@@ -5,7 +5,7 @@ from common.responses import success_response
 from .serializers import QuestionCreateSerializer, QuestionListSerializer
 from . import services
 from .rabbitmq_client import publish_event
-from .elasticsearch_client import es_client, QUESTIONS_INDEX
+from .tasks import publish_event_task
 
 
 class QuestionListCreateView(APIView):
@@ -47,16 +47,7 @@ class QuestionVoteView(APIView):
         question = services.vote_question(question_id=question_id, user_id=request.user.id)
         
         try:
-            # requests.post(
-            #     "http://notification-service:8000/api/broadcast/vote-updated/",
-            #     json={
-            #         "invite_code": question.session.invite_code,
-            #         "question_id": question.id,
-            #         "vote_count": question.vote_count
-            #     },
-            #     timeout=2
-            # )
-            publish_event("vote_updated", {
+            publish_event_task.delay("vote_updated", {
                 "invite_code": question.session.invite_code,
                 "question_id": question.id,
                 "vote_count": question.vote_count

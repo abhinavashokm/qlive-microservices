@@ -143,3 +143,9 @@ REST_FRAMEWORK = {
     ),
     'EXCEPTION_HANDLER': 'common.exceptions.custom_exception_handler',
 }
+
+
+CELERY_BROKER_URL = f"amqp://guest:guest@{os.environ.get('RABBITMQ_HOST', 'localhost')}:5672//"
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"

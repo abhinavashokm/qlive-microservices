@@ -164,3 +164,17 @@ services:
       - RABBITMQ_HOST=rabbitmq
       - REDIS_HOST=redis
 
+  question-celery-worker:
+    build:
+      context: ./question-service
+    command: celery -A config worker -l info
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      question-db:
+        condition: service_healthy
+    environment:
+      - DB_HOST=question-db
+      - REDIS_HOST=redis
+      - RABBITMQ_HOST=rabbitmq
+
