@@ -5,6 +5,7 @@ from common.responses import success_response
 from .serializers import QuestionCreateSerializer, QuestionListSerializer
 from . import services
 from .rabbitmq_client import publish_event
+from .elasticsearch_client import es_client, QUESTIONS_INDEX
 
 
 class QuestionListCreateView(APIView):
@@ -65,3 +66,12 @@ class QuestionVoteView(APIView):
             pass
             
         return success_response(data={"vote_count": question.vote_count})
+
+class QuestionSearchView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, invite_code):
+        query_text = request.query_params.get('q', '')
+        questions = services.search_questions(invite_code=invite_code, query_text=query_text)
+        serializer = QuestionListSerializer(questions, many=True)
+        return success_response(data=serializer.data)

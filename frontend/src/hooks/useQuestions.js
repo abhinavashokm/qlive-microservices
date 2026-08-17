@@ -43,5 +43,23 @@ export function useQuestions(inviteCode) {
     }
   };
 
-  return { questions, setQuestions, isLoading, error, fetchQuestions, askQuestion, upvoteQuestion };
+  const searchQuestions = useCallback(async (query) => {
+    if (!inviteCode) return;
+    setIsLoading(true);
+    try {
+      if (!query.trim()) {
+        const data = await questionsApi.list(inviteCode);
+        setQuestions(data);
+      } else {
+        const data = await questionsApi.search(inviteCode, query);
+        setQuestions(data);
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [inviteCode]);
+
+  return { questions, setQuestions, isLoading, error, fetchQuestions, askQuestion, upvoteQuestion, searchQuestions };
 }

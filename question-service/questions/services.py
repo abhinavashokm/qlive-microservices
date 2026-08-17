@@ -4,6 +4,9 @@ from sessions.services import get_active_session_by_code
 from common.exceptions import ForbiddenError, NotFoundError
 from .redis_client import redis_client
 from django.db import IntegrityError
+from .elasticsearch_client import es_client, QUESTIONS_INDEX
+
+
 
 def list_questions(invite_code: str):
     cache_key = f"session:{invite_code}:questions"
@@ -25,15 +28,29 @@ def list_questions(invite_code: str):
     redis_client.set(cache_key, json.dumps(data), ex=60)  # cache for 60 seconds
     return data
 
+
 def create_question(invite_code: str, text: str, author_id: int) -> Question:
     """Creates a new question within an active session."""
     session = get_active_session_by_code(invite_code)
+    question = Question.objects.create(session=session, text=text, author=author_id)
+
+    # Add to Elasticsearch
+    es_client.index(
+        index=QUESTIONS_INDEX,
+        id=question.id,
+        document={
+            "id": question.id,
+            "text": question.text,
+            "session_invite_code": invite_code,
+        }
+    )
 
     # Invalidate cache so next list_questions hits the DB
     cache_key = f"session:{invite_code}:questions"
     redis_client.delete(cache_key)
 
-    return Question.objects.create(session=session, text=text, author=author_id)
+    return question
+
 
 def mark_question_answered(invite_code: str, question_id: int, requester_id: int):
     """Marks a question as answered, verifying the requester is the session host."""
@@ -49,6 +66,7 @@ def mark_question_answered(invite_code: str, question_id: int, requester_id: int
     question.is_answered = True
     question.save()
     return question
+
 
 def vote_question(question_id: int, user_id: int) -> Question:
     """Upvotes a question and returns the updated question instance."""
@@ -71,3 +89,24 @@ def vote_question(question_id: int, user_id: int) -> Question:
     
     redis_client.set(f"question:{question.id}:votes", question.vote_count)
     return question
+
+def search_questions(invite_code: str, query_text: str):
+    """Searches questions in a session using Elasticsearch full-text matching."""
+    if not query_text:
+        return list_questions(invite_code)  # fallback to full list if no query given
+
+    response = es_client.search(
+        index=QUESTIONS_INDEX,
+        query={
+            "bool": {
+                "must": [
+                    {"match": {"text": query_text}}
+                ],
+                "filter": [
+                    {"term": {"session_invite_code": invite_code}}
+                ]
+            }
+        }
+    )
+    matched_ids = [hit["_source"]["id"] for hit in response["hits"]["hits"]]
+    return Question.objects.filter(id__in=matched_ids)

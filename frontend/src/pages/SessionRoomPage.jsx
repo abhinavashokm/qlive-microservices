@@ -11,7 +11,11 @@ import Button from '../components/ui/Button';
 export default function SessionRoomPage() {
   const { inviteCode } = useParams();
   const navigate = useNavigate();
-  const { questions, setQuestions, fetchQuestions, askQuestion, upvoteQuestion } = useQuestions(inviteCode);
+  const { questions, setQuestions, fetchQuestions, askQuestion, upvoteQuestion, searchQuestions } = useQuestions(inviteCode);
+  
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const [isInitialMount, setIsInitialMount] = useState(true);
   
   const isHost = true; // TODO: Determine if host from context/auth
 
@@ -38,7 +42,20 @@ export default function SessionRoomPage() {
     };
   }, [fetchQuestions, inviteCode, setQuestions]);
 
+  useEffect(() => {
+    if (isInitialMount) {
+      setIsInitialMount(false);
+      return;
+    }
+    
+    const delayDebounceFn = setTimeout(async () => {
+      setIsSearching(true);
+      await searchQuestions(searchQuery);
+      setIsSearching(false);
+    }, 400);
 
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery, searchQuestions, isInitialMount]);
 
   const handleAskQuestion = async (text) => {
     await askQuestion(text);
@@ -77,6 +94,29 @@ export default function SessionRoomPage() {
 
         <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-2 flex flex-col">
           <AskQuestionForm onSubmit={handleAskQuestion} />
+
+          <div className="mb-6 relative">
+            <input 
+              type="text"
+              placeholder="Search questions..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-4 py-3 pl-11 rounded-xl border border-zinc-200 bg-white shadow-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all text-zinc-900"
+            />
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-zinc-400">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            {isSearching && (
+              <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-brand-500">
+                <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </div>
+            )}
+          </div>
 
           <div className="flex-1 space-y-6 pb-20 sm:pb-10">
             {questions.map(q => (
