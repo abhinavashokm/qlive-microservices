@@ -2,10 +2,28 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../constants';
 import Button from '../components/ui/Button';
+import { useAuth } from '../hooks/useAuth';
 
 export default function LandingPage() {
+  const { user, isLoading } = useAuth();
+
   return (
     <div className="min-h-screen relative overflow-hidden flex flex-col justify-center">
+      {/* Header */}
+      <div className="absolute top-0 left-0 right-0 p-6 flex justify-end z-20">
+        {!isLoading && (
+          user ? (
+            <Link to={ROUTES.HOME}>
+              <Button variant="secondary">Go to Home</Button>
+            </Link>
+          ) : (
+            <Link to={ROUTES.LOGIN}>
+              <Button variant="secondary">Sign In</Button>
+            </Link>
+          )
+        )}
+      </div>
+
       {/* Animated Background Elements */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-violet-600/20 rounded-full mix-blend-screen filter blur-[100px] animate-blob"></div>
