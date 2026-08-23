@@ -7,9 +7,11 @@ from django.db import IntegrityError
 from .elasticsearch_client import es_client, QUESTIONS_INDEX
 
 
+def _get_question_cache_key(invite_code: str):
+    return f"session:{invite_code}:questions"
 
 def list_questions(invite_code: str):
-    cache_key = f"session:{invite_code}:questions"
+    cache_key = _get_question_cache_key(invite_code)
     cached = redis_client.get(cache_key)
 
     if cached is not None:
@@ -46,7 +48,7 @@ def create_question(invite_code: str, text: str, author_id: int) -> Question:
     )
 
     # Invalidate cache so next list_questions hits the DB
-    cache_key = f"session:{invite_code}:questions"
+    cache_key = _get_question_cache_key(invite_code)
     redis_client.delete(cache_key)
 
     return question
@@ -100,13 +102,13 @@ def search_questions(invite_code: str, query_text: str):
         query={
             "bool": {
                 "must": [
-                    {"match": {"text": query_text}}
+                    {"match_phrase_prefix": {"text": query_text}}
                 ],
                 "filter": [
-                    {"term": {"session_invite_code": invite_code}}
+                    {"term": {"session_invite_code.keyword": invite_code}}
                 ]
             }
         }
     )
     matched_ids = [hit["_source"]["id"] for hit in response["hits"]["hits"]]
-    return Question.objects.filter(id__in=matched_ids)
+    return Question.objects.filter(id__in=matched_ids).order_by('-vote_count')

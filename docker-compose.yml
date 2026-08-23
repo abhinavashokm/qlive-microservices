@@ -151,6 +151,7 @@ services:
   notification-listener:
     build:
       context: ./notification-service
+    restart: on-failure
     command: python manage.py listen_rabbitmq
     depends_on:
       rabbitmq:

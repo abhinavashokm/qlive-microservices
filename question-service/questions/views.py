@@ -1,11 +1,12 @@
-import requests
+import logging
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from common.responses import success_response
 from .serializers import QuestionCreateSerializer, QuestionListSerializer
 from . import services
-from .rabbitmq_client import publish_event
 from .tasks import publish_event_task
+
+logger = logging.getLogger(__name__)
 
 
 class QuestionListCreateView(APIView):
@@ -24,16 +25,15 @@ class QuestionListCreateView(APIView):
             text=serializer.validated_data['text'],
             author_id=request.user.id
         )
-        question_data = QuestionListSerializer(question).data
+        question_data = dict(QuestionListSerializer(question).data)
 
         try:
-            requests.post(
-                "http://notification-service:8000/api/broadcast/question-created/",
-                json={"invite_code": invite_code, "question": question_data},
-                timeout=2
-            )
-        except requests.RequestException:
-            pass  # don't let a broadcast failure break question creation
+            publish_event_task.delay("question_created", {
+                "invite_code": invite_code,
+                "question": question_data,
+            })
+        except Exception:
+            logger.exception("Failed to enqueue question_created event")
 
         return success_response(data=question_data, status_code=201)
 
@@ -53,8 +53,8 @@ class QuestionVoteView(APIView):
                 "vote_count": question.vote_count
             })
             
-        except requests.RequestException:
-            pass
+        except Exception:
+            logger.exception("Failed to enqueue vote_updated event")
             
         return success_response(data={"vote_count": question.vote_count})
 

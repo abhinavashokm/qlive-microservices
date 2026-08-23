@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ROUTES } from '../constants';
+import { NOTIFICATION_WS_BASE_URL, ROUTES } from '../constants';
 import { useQuestions } from '../hooks/useQuestions';
 import Navbar from '../components/Navbar';
 import QuestionCard from '../components/QuestionCard';
@@ -22,7 +22,7 @@ export default function SessionRoomPage() {
   useEffect(() => {
     fetchQuestions();
 
-    const wsUrl = `ws://localhost:8003/ws/session/${inviteCode}/`;
+    const wsUrl = `${NOTIFICATION_WS_BASE_URL}/ws/session/${inviteCode}/`;
     const ws = new WebSocket(wsUrl);
 
     ws.onmessage = (event) => {
