@@ -19,13 +19,15 @@ export default function SessionRoomPage() {
   
   const isHost = true; // TODO: Determine if host from context/auth
 
-  useEffect(() => {
+useEffect(() => {
     fetchQuestions();
 
     const wsUrl = `${NOTIFICATION_WS_BASE_URL}/ws/session/${inviteCode}/`;
     const ws = new WebSocket(wsUrl);
+    let isActive = true;
 
     ws.onmessage = (event) => {
+      if (!isActive) return;
       const data = JSON.parse(event.data);
       if (data.type === 'question_created') {
         setQuestions(prev => {
@@ -37,10 +39,15 @@ export default function SessionRoomPage() {
       }
     };
 
+    ws.onerror = () => {
+      if (!isActive) return; // suppress the StrictMode-induced fake error
+    };
+
     return () => {
+      isActive = false;
       ws.close();
     };
-  }, [fetchQuestions, inviteCode, setQuestions]);
+}, [fetchQuestions, inviteCode, setQuestions]);
 
   useEffect(() => {
     if (isInitialMount) {

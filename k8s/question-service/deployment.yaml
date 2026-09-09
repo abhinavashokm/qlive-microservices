@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: question-service 
+  namespace: q-live
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: question-service
+  template:
+    metadata:
+      labels:
+        app: question-service
+    spec:
+      containers: 
+        - name: question-service
+          image: question-service:latest
+          imagePullPolicy: Never
+          ports: 
+            - containerPort: 8000
+          env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: QUESTION_DB_HOST
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: REDIS_HOST
+            - name: RABBITMQ_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: RABBITMQ_HOST
+            - name: ELASTICSEARCH_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: ELASTICSEARCH_HOST
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: question-service
+  namespace: q-live
+spec:
+  selector:
+    app: question-service
+  ports:
+    - port: 8000
+      targetPort: 8000
+  type: ClusterIP

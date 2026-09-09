@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: question-celery-worker
+  namespace: q-live
+spec:
+  replicas: 1
+  selector:
+    matchLabels: 
+      app: question-celery-worker
+  template:
+    metadata:
+      labels: 
+        app: question-celery-worker
+    spec: 
+      containers:
+        - name: question-celery-worker
+          image: question-service:latest
+          imagePullPolicy: Never
+          env:
+            - name: DB_HOST
+              value: question-db
+            - name: REDIS_HOST
+              value: redis
+            - name: RABBITMQ_HOST
+              value: rabbitmq

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: q-live
+data:
+  REDIS_HOST: "redis"
+  RABBITMQ_HOST: "rabbitmq"
+  ELASTICSEARCH_HOST: "elasticsearch"
+  AUTH_DB_HOST: "auth-db"
+  QUESTION_DB_HOST: "question-db"
+  NOTIFICATION_DB_HOST: "notification-db"

@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-listener
+  namespace: q-live
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification-listener
+  template:
+    metadata:
+      labels:
+        app: notification-listener
+    spec:
+      containers:
+        - name: notification-listener
+          image: notification-service:latest
+          imagePullPolicy: Never
+          command: ["python", "manage.py", "listen_rabbitmq"]
+          env:
+            - name: DB_HOST
+              value: notification-db
+            - name: RABBITMQ_HOST
+              value: rabbitmq

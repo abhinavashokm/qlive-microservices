@@ -30,7 +30,7 @@ SECRET_KEY = 'django-insecure-bcmpc#*=5ncx!7jmj(u85o%1li!ds=5w3@n9w=p0w37h+yr(na
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition

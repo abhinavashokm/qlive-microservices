@@ -1,0 +1,62 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: q-live-ingress
+  namespace: q-live
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-set-headers: "q-live/websocket-headers"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: q-live.local
+      http:
+        paths:
+          - path: /api/auth
+            pathType: Prefix
+            backend:
+              service:
+                name: auth-service
+                port:
+                  number: 8000
+          - path: /api/sessions
+            pathType: Prefix
+            backend:
+              service:
+                name: question-service
+                port:
+                  number: 8000
+          - path: /api/questions
+            pathType: Prefix
+            backend:
+              service:
+                name: question-service
+                port:
+                  number: 8000
+          - path: /ws
+            pathType: Prefix
+            backend:
+              service:
+                name: notification-service
+                port:
+                  number: 8000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: q-live-frontend-ingress
+  namespace: q-live
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: q-live.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 5173
