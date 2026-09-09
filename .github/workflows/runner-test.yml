@@ -1,0 +1,38 @@
+# Self-hosted runner connectivity test
+name: Self-Hosted Runner Test
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - develop
+
+jobs:
+  test-runner:
+    runs-on: self-hosted
+
+    steps:
+      - name: Show runner information
+        run: |
+          echo "Runner is working!"
+          hostname
+          whoami
+
+      - name: Check Docker access
+        run: |
+          docker --version
+          docker ps
+
+      - name: Check Kubernetes cluster access
+        run: |
+          kubectl get nodes
+
+      - name: Check q-live namespace exists
+        run: |
+          kubectl get namespace q-live
+
+      - name: List current deployments in q-live
+        run: |
+          kubectl get deployments -n q-live
+          kubectl get pods -n q-live
