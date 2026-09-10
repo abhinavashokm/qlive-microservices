@@ -81,7 +81,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgrespassword
-      POSTGRES_DB: question_db
+      POSTGRES_DB: question-db
     ports:
       - "5433:5432"
     healthcheck:

@@ -83,7 +83,7 @@ jobs:
       postgres:
         image: postgres:16
         env:
-          POSTGRES_DB: question_db
+          POSTGRES_DB: question-db
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgrespassword
         ports:
@@ -111,7 +111,7 @@ jobs:
     env:
       DB_HOST: 127.0.0.1
       DB_PORT: 5433
-      DB_NAME: question_db
+      DB_NAME: question-db
       DB_PASSWORD: postgrespassword
       REDIS_HOST: 127.0.0.1
       REDIS_PORT: 6379
