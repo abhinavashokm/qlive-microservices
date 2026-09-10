@@ -45,7 +45,7 @@ export default function LandingPage() {
         </h1>
         
         <p className="mt-4 text-lg sm:text-xl text-zinc-600 max-w-2xl text-center mx-auto mb-12 font-light leading-relaxed animate-slide-up" style={{ animationDelay: '0.2s' }}>
-          The premium platform for interactive live Q&A sessions. Gather questions, upvote the best ones, and answer them in real-time with zero friction. (v1.5)
+          The premium platform for interactive live Q&A sessions. Gather questions, upvote the best ones, and answer them in real-time with zero friction. (v2)
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md sm:max-w-none justify-center animate-slide-up" style={{ animationDelay: '0.3s' }}>

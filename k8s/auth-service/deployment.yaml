@@ -16,7 +16,7 @@ spec:
       containers: 
         - name: auth-service
           image: abhinavashok/qa-live-auth-service:latest
-          imagePullPolicy: Always
+          imagePullPolicy: Never
           ports: 
             - containerPort: 8000
           env:
