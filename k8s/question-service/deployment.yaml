@@ -16,7 +16,7 @@ spec:
       containers: 
         - name: question-service
           image: question-service:latest
-          imagePullPolicy: Never
+          imagePullPolicy: Always
           ports: 
             - containerPort: 8000
           env:

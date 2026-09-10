@@ -16,7 +16,7 @@ spec:
       containers:
         - name: notification-listener
           image: notification-service:latest
-          imagePullPolicy: Never
+          imagePullPolicy: Always
           command: ["python", "manage.py", "listen_rabbitmq"]
           env:
             - name: DB_HOST

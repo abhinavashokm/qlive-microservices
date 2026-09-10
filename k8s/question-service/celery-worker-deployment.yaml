@@ -16,7 +16,7 @@ spec:
       containers:
         - name: question-celery-worker
           image: question-service:latest
-          imagePullPolicy: Never
+          imagePullPolicy: Always
           env:
             - name: DB_HOST
               value: question-db
