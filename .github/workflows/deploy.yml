@@ -9,11 +9,14 @@ on:
 
 jobs:
 
+  # ==========================================
+  # BUILD AND PUSH DOCKER IMAGES
+  # ==========================================
   docker-build-push:
     name: Build & Push Docker Images
     runs-on: ubuntu-latest
 
-    # Only proceed if the CI run this was triggered by actually passed
+    # Only proceed if the CI run actually passed
     if: github.event.workflow_run.conclusion == 'success'
 
     strategy:
@@ -21,10 +24,11 @@ jobs:
         service: [auth-service, question-service, notification-service, frontend]
 
     steps:
-      - uses: actions/checkout@v4
+
+      - name: Checkout tested commit
+        uses: actions/checkout@v4
         with:
-          # Check out the exact commit that CI just tested — not just
-          # whatever HEAD happens to be when this workflow_run fires
+          # Checkout the exact commit that CI tested
           ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Set up Docker Buildx
@@ -36,74 +40,172 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push
+      - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: ./${{ matrix.service }}
           push: true
+
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/qa-live-${{ matrix.service }}:latest
             ${{ secrets.DOCKER_USERNAME }}/qa-live-${{ matrix.service }}:${{ github.event.workflow_run.head_sha }}
+
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
 
+  # ==========================================
+  # DEPLOY TO MINIKUBE
+  # ==========================================
   deploy-to-minikube:
     name: Deploy to Minikube
     runs-on: self-hosted
 
+    # Don't deploy until all Docker images are successfully built and pushed
     needs: docker-build-push
 
     steps:
+
+      # ----------------------------------------
+      # Update application images
+      # ----------------------------------------
       - name: Update Kubernetes images
         run: |
+
+          # Auth service
           kubectl set image deployment/auth-service \
             auth-service=${{ secrets.DOCKER_USERNAME }}/qa-live-auth-service:${{ github.event.workflow_run.head_sha }} \
             -n q-live
 
+
+          # Question service
           kubectl set image deployment/question-service \
             question-service=${{ secrets.DOCKER_USERNAME }}/qa-live-question-service:${{ github.event.workflow_run.head_sha }} \
             -n q-live
 
+          # Question Celery worker
+          # Uses the same Docker image as question-service
+          kubectl set image deployment/question-celery-worker \
+            question-celery-worker=${{ secrets.DOCKER_USERNAME }}/qa-live-question-service:${{ github.event.workflow_run.head_sha }} \
+            -n q-live
+
+
+          # Notification service
           kubectl set image deployment/notification-service \
             notification-service=${{ secrets.DOCKER_USERNAME }}/qa-live-notification-service:${{ github.event.workflow_run.head_sha }} \
             -n q-live
 
+          # Notification listener
+          # Uses the same Docker image as notification-service
+          kubectl set image deployment/notification-listener \
+            notification-listener=${{ secrets.DOCKER_USERNAME }}/qa-live-notification-service:${{ github.event.workflow_run.head_sha }} \
+            -n q-live
+
+
+          # Frontend
           kubectl set image deployment/frontend \
             frontend=${{ secrets.DOCKER_USERNAME }}/qa-live-frontend:${{ github.event.workflow_run.head_sha }} \
             -n q-live
 
+
+      # ----------------------------------------
+      # Wait for rolling updates
+      # ----------------------------------------
       - name: Wait for deployments
         id: rollout
         continue-on-error: true
         run: |
-          kubectl rollout status deployment/auth-service -n q-live --timeout=120s
-          kubectl rollout status deployment/question-service -n q-live --timeout=120s
-          kubectl rollout status deployment/notification-service -n q-live --timeout=120s
-          kubectl rollout status deployment/frontend -n q-live --timeout=120s
 
+          kubectl rollout status deployment/auth-service \
+            -n q-live --timeout=120s
+
+          kubectl rollout status deployment/question-service \
+            -n q-live --timeout=120s
+
+          kubectl rollout status deployment/question-celery-worker \
+            -n q-live --timeout=120s
+
+          kubectl rollout status deployment/notification-service \
+            -n q-live --timeout=120s
+
+          kubectl rollout status deployment/notification-listener \
+            -n q-live --timeout=120s
+
+          kubectl rollout status deployment/frontend \
+            -n q-live --timeout=120s
+
+
+      # ----------------------------------------
+      # Rollback if deployment failed
+      # ----------------------------------------
       - name: Rollback failed deployments
         if: steps.rollout.outcome == 'failure'
         run: |
+
           echo "Deployment failed. Starting rollback..."
 
-          kubectl rollout undo deployment/auth-service -n q-live
-          kubectl rollout undo deployment/question-service -n q-live
-          kubectl rollout undo deployment/notification-service -n q-live
-          kubectl rollout undo deployment/frontend -n q-live
+          kubectl rollout undo deployment/auth-service \
+            -n q-live
+
+          kubectl rollout undo deployment/question-service \
+            -n q-live
+
+          kubectl rollout undo deployment/question-celery-worker \
+            -n q-live
+
+          kubectl rollout undo deployment/notification-service \
+            -n q-live
+
+          kubectl rollout undo deployment/notification-listener \
+            -n q-live
+
+          kubectl rollout undo deployment/frontend \
+            -n q-live
 
           echo "Rollback commands completed."
 
+
+      # ----------------------------------------
+      # Verify rollback
+      # ----------------------------------------
       - name: Verify rollback
         if: steps.rollout.outcome == 'failure'
         run: |
-          kubectl rollout status deployment/auth-service -n q-live --timeout=120s
-          kubectl rollout status deployment/question-service -n q-live --timeout=120s
-          kubectl rollout status deployment/notification-service -n q-live --timeout=120s
-          kubectl rollout status deployment/frontend -n q-live --timeout=120s
 
+          kubectl rollout status deployment/auth-service \
+            -n q-live --timeout=120s
+
+          kubectl rollout status deployment/question-service \
+            -n q-live --timeout=120s
+
+          kubectl rollout status deployment/question-celery-worker \
+            -n q-live --timeout=120s
+
+          kubectl rollout status deployment/notification-service \
+            -n q-live --timeout=120s
+
+          kubectl rollout status deployment/notification-listener \
+            -n q-live --timeout=120s
+
+          kubectl rollout status deployment/frontend \
+            -n q-live --timeout=120s
+
+
+      # ----------------------------------------
+      # Verify successful deployment
+      # ----------------------------------------
       - name: Verify deployment
         if: steps.rollout.outcome == 'success'
         run: |
+
+          echo "Deployment successful!"
+
+          echo "=== Deployments ==="
           kubectl get deployments -n q-live
+
+          echo "=== Pods ==="
           kubectl get pods -n q-live
+
+          echo "=== Services ==="
+          kubectl get services -n q-live
+
