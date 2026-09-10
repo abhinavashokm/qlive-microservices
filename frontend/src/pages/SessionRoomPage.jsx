@@ -26,21 +26,41 @@ export default function SessionRoomPage() {
     const ws = new WebSocket(wsUrl);
     let isActive = true;
 
+    ws.onopen = () => {
+      console.log("🟢 WebSocket connected:", wsUrl);
+    };
+
+
     ws.onmessage = (event) => {
+      console.log("📨 WebSocket message:", event.data);
+
       if (!isActive) return;
+
       const data = JSON.parse(event.data);
+
       if (data.type === 'question_created') {
         setQuestions(prev => {
           if (prev.some(q => q.id === data.question.id)) return prev;
           return [...prev, data.question];
         });
       } else if (data.type === 'vote_updated') {
-        setQuestions(prev => prev.map(q => q.id === data.question_id ? { ...q, vote_count: data.vote_count } : q));
+        setQuestions(prev =>
+          prev.map(q =>
+            q.id === data.question_id
+              ? { ...q, vote_count: data.vote_count }
+              : q
+          )
+        );
       }
     };
 
-    ws.onerror = () => {
+    ws.onerror = (error) => {
+      console.error("🔴 WebSocket error:", error);
       if (!isActive) return; // suppress the StrictMode-induced fake error
+    };
+
+    ws.onclose = (event) => {
+      console.log("🟡 WebSocket closed:", event.code, event.reason);
     };
 
     return () => {

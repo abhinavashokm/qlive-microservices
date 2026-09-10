@@ -9,4 +9,4 @@ data:
   ELASTICSEARCH_HOST: "elasticsearch"
   AUTH_DB_HOST: "auth-db"
   QUESTION_DB_HOST: "question-db"
-  NOTIFICATION_DB_HOST: "notification-db"
+  notification-db_HOST: "notification-db"

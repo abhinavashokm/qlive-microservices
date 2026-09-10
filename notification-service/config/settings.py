@@ -91,7 +91,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": os.environ.get("DB_ENGINE", "django.db.backends.postgresql"),
-        "NAME": os.environ.get("DB_NAME", "notification_db"),
+        "NAME": os.environ.get("DB_NAME", "notification-db"),
         "USER": os.environ.get("DB_USER", "postgres"),
         "PASSWORD": os.environ.get("DB_PASSWORD", "postgrespassword"),
         "HOST": os.environ.get("DB_HOST", "127.0.0.1"),

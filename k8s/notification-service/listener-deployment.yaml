@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: notification-listener
-          image: bhinavashok/qa-live-notification-service:latest
+          image: abhinavashok/qa-live-notification-service:latest
           imagePullPolicy: Always
           command: ["python", "manage.py", "listen_rabbitmq"]
           env:
@@ -23,3 +23,5 @@ spec:
               value: notification-db
             - name: RABBITMQ_HOST
               value: rabbitmq
+            - name: REDIS_HOST
+              value: redis

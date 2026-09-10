@@ -17,6 +17,8 @@ spec:
         - name: question-celery-worker
           image: abhinavashok/qa-live-question-service:latest
           imagePullPolicy: Always
+          command: ["celery"]
+          args: ["-A", "config", "worker", "--loglevel=info"]
           env:
             - name: DB_HOST
               value: question-db

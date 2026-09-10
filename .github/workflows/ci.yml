@@ -162,7 +162,7 @@ jobs:
       postgres:
         image: postgres:16
         env:
-          POSTGRES_DB: notification_db
+          POSTGRES_DB: notification-db
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgrespassword
         ports:
@@ -190,7 +190,7 @@ jobs:
     env:
       DB_HOST: 127.0.0.1
       DB_PORT: 5434
-      DB_NAME: notification_db
+      DB_NAME: notification-db
       DB_PASSWORD: postgrespassword
       REDIS_HOST: 127.0.0.1
       REDIS_PORT: 6380

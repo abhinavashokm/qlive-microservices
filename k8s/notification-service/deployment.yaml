@@ -24,7 +24,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: app-config
-                  key: NOTIFICATION_DB_HOST
+                  key: notification-db_HOST
             - name: REDIS_HOST
               valueFrom:
                 configMapKeyRef:
