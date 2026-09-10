@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../api/config';
 
@@ -26,7 +26,7 @@ export default function DashboardPage({ token, setToken }) {
           setToken(null);
           navigate('/login');
         }
-      } catch (err) {
+      } catch {
         setToken(null);
         navigate('/login');
       }

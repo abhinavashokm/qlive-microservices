@@ -1,6 +1,5 @@
-import React from 'react';
+ ;
 import { Link } from 'react-router-dom';
-import { ROUTES } from '../constants';
 import Button from './ui/Button';
 
 export default function Navbar({ user, onLogout }) {

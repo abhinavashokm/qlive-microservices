@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ROUTES } from '../constants';
 import { sessionsApi } from '../api/sessionsApi';
@@ -23,7 +23,7 @@ export default function JoinSessionPage() {
       await sessionsApi.validateJoin(inviteCode);
       await sessionsApi.join(inviteCode);
       navigate(ROUTES.SESSION(inviteCode.toUpperCase()));
-    } catch (err) {
+    } catch {
       setError('Invalid or expired invite link');
     } finally {
       setIsLoading(false);

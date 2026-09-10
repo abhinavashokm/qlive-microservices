@@ -1,8 +1,7 @@
-import React from 'react';
+ ;
 import Badge from './ui/Badge';
-import Button from './ui/Button';
 
-export default function QuestionCard({ question, isHost, onUpvote }) {
+export default function QuestionCard({ question, onUpvote }) {
   const hasUserVoted = question.has_voted || false;
 
   return (

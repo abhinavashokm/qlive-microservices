@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { NOTIFICATION_WS_BASE_URL, ROUTES } from '../constants';
 import { useQuestions } from '../hooks/useQuestions';
@@ -12,14 +12,14 @@ export default function SessionRoomPage() {
   const { inviteCode } = useParams();
   const navigate = useNavigate();
   const { questions, setQuestions, fetchQuestions, askQuestion, upvoteQuestion, searchQuestions } = useQuestions(inviteCode);
-  
+
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
-  const [isInitialMount, setIsInitialMount] = useState(true);
-  
+  const isInitialMount = useRef(true);
+
   const isHost = true; // TODO: Determine if host from context/auth
 
-useEffect(() => {
+  useEffect(() => {
     fetchQuestions();
 
     const wsUrl = `${NOTIFICATION_WS_BASE_URL}/ws/session/${inviteCode}/`;
@@ -47,22 +47,25 @@ useEffect(() => {
       isActive = false;
       ws.close();
     };
-}, [fetchQuestions, inviteCode, setQuestions]);
+  }, [fetchQuestions, inviteCode, setQuestions]);
 
   useEffect(() => {
-    if (isInitialMount) {
-      setIsInitialMount(false);
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
       return;
     }
-    
+
     const delayDebounceFn = setTimeout(async () => {
       setIsSearching(true);
+
       await searchQuestions(searchQuery);
+
       setIsSearching(false);
     }, 400);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [searchQuery, searchQuestions, isInitialMount]);
+
+  }, [searchQuery, searchQuestions]);
 
   const handleAskQuestion = async (text) => {
     await askQuestion(text);
@@ -83,7 +86,7 @@ useEffect(() => {
 
       <div className="relative z-10 flex flex-col min-h-screen">
         <Navbar />
-        
+
         <header className="border-b border-black/5 bg-zinc-50/50 backdrop-blur-md">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
             <div>
@@ -103,7 +106,7 @@ useEffect(() => {
           <AskQuestionForm onSubmit={handleAskQuestion} />
 
           <div className="mb-6 relative">
-            <input 
+            <input
               type="text"
               placeholder="Search questions..."
               value={searchQuery}
@@ -127,14 +130,14 @@ useEffect(() => {
 
           <div className="flex-1 space-y-6 pb-20 sm:pb-10">
             {questions.map(q => (
-              <QuestionCard 
+              <QuestionCard
                 key={q.id}
                 question={q}
                 isHost={isHost}
                 onUpvote={toggleUpvote}
               />
             ))}
-            
+
             {questions.length === 0 && (
               <div className="text-center py-20 px-4 border-2 border-dashed border-black/10 rounded-3xl bg-zinc-100/30 animate-fade-in">
                 <div className="mx-auto w-20 h-20 bg-zinc-200/50 rounded-full flex items-center justify-center mb-6">
