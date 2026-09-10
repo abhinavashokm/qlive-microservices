@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: notification-listener
-          image: notification-service:latest
+          image: bhinavashok/qa-live-notification-service:latest
           imagePullPolicy: Always
           command: ["python", "manage.py", "listen_rabbitmq"]
           env:

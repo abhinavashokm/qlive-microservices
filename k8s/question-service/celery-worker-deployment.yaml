@@ -15,7 +15,7 @@ spec:
     spec: 
       containers:
         - name: question-celery-worker
-          image: question-service:latest
+          image: abhinavashok/qa-live-question-service:latest
           imagePullPolicy: Always
           env:
             - name: DB_HOST

@@ -15,7 +15,7 @@ spec:
     spec:
       containers: 
         - name: notification-service
-          image: notification-service:latest
+          image: abhinavashok/qa-live-notification-service:latest
           imagePullPolicy: Always
           ports: 
             - containerPort: 8000

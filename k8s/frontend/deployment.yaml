@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: frontend:latest
+          image: abhinavashok/qa-live-frontend:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 5173
